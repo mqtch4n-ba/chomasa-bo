@@ -3,10 +3,7 @@ import os
 import random
 from flask import Flask
 from threading import Thread
-
-# ----------------------------------------------------
-# 👇 【追加】Webサーバー機能 (Renderのスリープ防止用)
-# ----------------------------------------------------
+
 app = Flask('')
 
 @app.route('/')
@@ -18,11 +15,7 @@ def run():
 
 def keep_alive():
     t = Thread(target=run)
-    t.start()
-# ----------------------------------------------------
-
-
-# ここから下はあなたの既存のコードです
+    t.start()
 
 # BOTが応答するチャンネルIDのリスト
 TARGET_CHANNEL_IDS = [
@@ -30,7 +23,7 @@ TARGET_CHANNEL_IDS = [
     1422043344938471485,
 ]
 
-# 応答リスト（辞書）の定義
+
 RESPONSE_MAP = {
     "ちょまさ": [
         "ルナやぞ",
@@ -109,7 +102,7 @@ CHOMASA_POST_LINKS = [
     "https://x.com/chomasa0110/status/1955618377944514874?s=46&t=YRNFhWuUfWmcyhVVy1uCRQ",
 ]
 
-# インテントの設定
+
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
@@ -146,15 +139,10 @@ async def chomasa_command(interaction: discord.Interaction):
     random_post_link = random.choice(CHOMASA_POST_LINKS)
     await interaction.response.send_message(random_post_link)
 
-# ----------------------------------------------------
-# BOTの実行
-# ----------------------------------------------------
-try:
-    # 👇 【追加】Webサーバーを起動
     keep_alive()
     print("Webサーバーを起動しました。")
     
-    # BOTを起動
+    
     TOKEN = os.environ['DISCORD_BOT_TOKEN']
     client.run(TOKEN)
 except KeyError:
