@@ -120,6 +120,9 @@ async def on_ready():
     print(f'Logged in as {client.user}')
     await tree.sync()
     print("スラッシュコマンドを同期しました。")
+    
+    activity = discord.CustomActivity(name="ルナやぞ")
+    await client.change_presence(activity=activity)
 
 @client.event
 async def on_message(message):
@@ -155,4 +158,5 @@ try:
     TOKEN = os.environ['DISCORD_BOT_TOKEN']
     client.run(TOKEN)
 except KeyError:
+
     print("エラー: 環境変数 'DISCORD_BOT_TOKEN' が設定されていません。")
