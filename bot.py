@@ -74,7 +74,7 @@ RESPONSE_MAP = {
     "かんなづき": [
         "よわよわゆずみつ先生甘々マゾマゾえっちすぎるカフェタッチすごいたのしいブルアカ愛イチャラブーカリカリほむほむASMR",
         "チョコミント美味しいですよね？",
-        "関係は無いんですけど、卵って美味しいですよね🥚"
+        "関係は無いんですけど、卵って美味しいですよね🥚",
         "エロいとえっちは別だと思ってて、えっち派閥に属してます",
     ],
     ":sa:": [
@@ -107,7 +107,6 @@ CHOMASA_POST_LINKS = [
     "https://x.com/chomasa0110/status/1870836874354532648",
     "https://x.com/chomasa0110/status/1851153967247667363",
     "https://x.com/chomasa0110/status/1955618377944514874?s=46&t=YRNFhWuUfWmcyhVVy1uCRQ",
-    "https://x.com/chomasa0110/status/1974469814061310393",
 ]
 
 # インテントの設定
@@ -156,6 +155,4 @@ try:
     TOKEN = os.environ['DISCORD_BOT_TOKEN']
     client.run(TOKEN)
 except KeyError:
-
     print("エラー: 環境変数 'DISCORD_BOT_TOKEN' が設定されていません。")
-
