@@ -95,10 +95,11 @@ RESPONSE_MAP = {
         "鍵垢の名前大募集‼️",
         "ことねパネルあるやんキスさせろキス",
     ],
-    ":sa:": [
+    "ひか": [
         "彼女とカラオケ彼女抜き",
         "俺も股間に種子貯蔵庫あるよ！！"
         "仮装舞踏会にコユハラ冷笑してるヤツいたから引っこ抜け"
+        "ブルアカ辞めたんでミュートブロ解お好きにどうぞ"
     ]
 }
 
@@ -156,5 +157,6 @@ async def chomasa_command(interaction: discord.Interaction):
 except KeyError:
 
     print("エラー: 環境変数 'DISCORD_BOT_TOKEN' が設定されていません。")
+
 
 
