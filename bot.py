@@ -3,7 +3,8 @@ import os
 import random
 from flask import Flask
 from threading import Thread
-
+
+
 app = Flask('')
 
 @app.route('/')
@@ -15,7 +16,8 @@ def run():
 
 def keep_alive():
     t = Thread(target=run)
-    t.start()
+    t.start()
+
 
 # BOTが応答するチャンネルIDのリスト
 TARGET_CHANNEL_IDS = [
@@ -91,6 +93,12 @@ RESPONSE_MAP = {
         "まじでよくねー\n俺の意思どうにかならんかな、石だけに‼️\nガハハ‼️笑えよおい笑えよ",
         "ガーン",
         "鍵垢の名前大募集‼️",
+        "ことねパネルあるやんキスさせろキス",
+    ],
+    "ひか"：[
+        "彼女とカラオケ彼女抜き",
+        "俺も股間に種子貯蔵庫あるよ！！"
+        "仮装舞踏会にコユハラ冷笑してるヤツいたから引っこ抜け"
     ]
 }
 
@@ -148,3 +156,4 @@ async def chomasa_command(interaction: discord.Interaction):
 except KeyError:
 
     print("エラー: 環境変数 'DISCORD_BOT_TOKEN' が設定されていません。")
+
