@@ -3,10 +3,7 @@ import os
 import random
 from flask import Flask
 from threading import Thread
-
-# ----------------------------------------------------
-# Webサーバー機能 (Renderのスリープ防止用)
-# ----------------------------------------------------
+
 app = Flask('')
 
 @app.route('/')
@@ -19,16 +16,13 @@ def run():
 def keep_alive():
     t = Thread(target=run)
     t.start()
-# ----------------------------------------------------
 
-
-# BOTが応答するチャンネルIDのリスト
 TARGET_CHANNEL_IDS = [
     1372899565920845996,
     1422043344938471485,
 ]
 
-# 応答リスト（辞書）の定義
+
 RESPONSE_MAP = {
     "ちょまさ": [
         "ルナやぞ", "ちょまさ降臨", "自分のことを○○だと思ってる一般人だよ", "イチャラブーの煮付け", "○○てｗ",
@@ -117,7 +111,7 @@ async def on_ready():
     await tree.sync()
     print("スラッシュコマンドを同期しました。")
     
-    activity = discord.CustomActivity(name="ルナやぞ")
+    activity = discord.CustomActivity(name="🗿🍷ガチイク！")
     await client.change_presence(activity=activity)
 
 @client.event
