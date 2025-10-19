@@ -101,7 +101,8 @@ RESPONSE_MAP = {
         "全56しゅるい、好きな並びでつなげて飾ったり遊んだりしてみてください！",
         "新宿！\nたくさんの生徒さんががたんごとんとしてますので、お近くに立ち寄りの際はぜひー！\nhttps://pbs.twimg.com/media/GpCCpqBa0AAyQbX?format=jpg&name=large",
         "株式会社Yostarに入社しました\nhttps://note.com/kumajet/n/n763fa4043827",
-        "株式会社Cygamesを退職しました\nhttps://note.com/kumajet/n/n32182c2f99fc",
+        "株式会社Cygamesを退職しました\nhttps://note.com/kumajet/n/n32182c2f99fc","https://x.com/StellaSoraJP/status/1871843329295716846?t=rZSqMjNdN5LwYE1pMLkjlg&s=19",
+
 
     ],
 }
