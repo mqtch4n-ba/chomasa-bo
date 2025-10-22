@@ -165,6 +165,75 @@ async def chomasa_command(interaction: discord.Interaction):
     random_post_link = random.choice(CHOMASA_POST_LINKS)
     await interaction.response.send_message(random_post_link)
 
+# ブルアカデータ取得機能
+@tree.command(name="chara_data", description="SchaleDBから生徒の情報を検索します。")
+@discord.app_commands.describe(name="生徒の名前（一部でも可）")
+async def chara_data_command(interaction: discord.Interaction, name: str):
+    # APIの呼び出しには時間がかかる場合があるため、「考え中...」と表示させる
+    await interaction.response.defer()
+
+    try:
+        # 1. 生徒の名前で検索して、IDを取得する
+        search_url = f"https://schaledb.com/api/v1/students/search?query={name}"
+        search_response = requests.get(search_url)
+
+        if search_response.status_code != 200:
+            await interaction.followup.send("APIエラーが発生しました。SchaleDBがダウンしているかもしれません。")
+            return
+
+        search_data = search_response.json()
+        if not search_data:
+            await interaction.followup.send(f"「{name}」という名前の生徒は見つかりませんでした。")
+            return
+
+        # 検索結果の最初の一人のIDを取得
+        student_id = search_data[0]['Id']
+
+        # 2. 取得したIDを使って、生徒の詳細データを取得する
+        data_url = f"https://schaledb.com/api/v1/students/{student_id}"
+        data_response = requests.get(data_url)
+        
+        if data_response.status_code != 200:
+            await interaction.followup.send("生徒の詳細データの取得に失敗しました。")
+            return
+            
+        student = data_response.json()
+
+        # 3. 取得したデータを使ってEmbed（埋め込み）を作成する
+        embed = discord.Embed(
+            title=f"{student['Name']} ({student['NameJp']})",
+            description=student['Profile'], # キャラの説明文
+            color=discord.Color.blue() # 埋め込みの左側の色
+        )
+        
+        # サムネイル画像（アイコン）を設定
+        embed.set_thumbnail(url=f"https://schaledb.com/images/student/icon/{student['Id']}.webp")
+        
+        # フィールドを追加
+        embed.add_field(name="学校", value=student['School'], inline=True)
+        embed.add_field(name="部活", value=student['Club'], inline=True)
+        embed.add_field(name="学年", value=student['SchoolYear'], inline=True)
+        
+        embed.add_field(name="役割 (Role)", value=student['Role'], inline=True)
+        embed.add_field(name="武器", value=student['WeaponType'], inline=True)
+        embed.add_field(name="誕生日", value=student['Birthday'], inline=True)
+        
+        embed.add_field(name="攻撃タイプ", value=student['AttackType'], inline=True)
+        embed.add_field(name="防御タイプ", value=student['DefenseType'], inline=True)
+        embed.add_field(name="遮蔽", value="使う" if student['Cover'] else "使わない", inline=True)
+
+        embed.set_footer(text="Data from SchaleDB")
+
+        # 4. 作成したEmbedを送信する
+        await interaction.followup.send(embed=embed)
+
+    except requests.exceptions.RequestException as e:
+        print(f"APIリクエストエラー: {e}")
+        await interaction.followup.send("リクエスト中にネットワークエラーが発生しました。")
+    except Exception as e:
+        print(f"予期せぬエラー: {e}")
+        await interaction.followup.send("情報の取得中に不明なエラーが発生しました。")
+
 # BOTの実行
 try:
     keep_alive()
@@ -173,5 +242,6 @@ try:
     client.run(TOKEN)
 except KeyError:
     print("エラー: 環境変数 'DISCORD_BOT_TOKEN' が設定されていません。")
+
 
 
