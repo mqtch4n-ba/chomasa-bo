@@ -3,6 +3,7 @@ import os
 import random
 from flask import Flask
 from threading import Thread
+import requests  # 👈 【修正点１】requests をインポートする
 
 # ----------------------------------------------------
 # Webサーバー機能 (Renderのスリープ防止用)
@@ -39,7 +40,7 @@ RESPONSE_MAP = {
         "「ネタバレされたくなければ即見ろ自衛しろはマジで正論なんだけど、人に配慮しようっていう心があれば自分がネタバレって思わないレベルのネタバレでも普通はしないはずなんだよね、楽しみを奪うとかよりも人としての程度の話なんだよね」",
         "もうそれセックスやないかい‼️😁\nオラ‼️夜のお祭りすんぞ‼️😡\nﾊﾟﾝﾊﾟﾝﾊﾟﾝﾊﾟﾝﾊﾟﾝﾊﾟﾝﾊﾟﾝ←花火の音です😃",
         "臨戦ホシノこれからだと正直使う機会あんま無いと思ってる", "俺も予言者だから予言するわ\nオナニー雲があるから今日俺はオナニーをする",
-        "心がドビュドビュすんるんじゃあ", "人生初ピンサロ行ってきました\n普通にイキました\nえぐい",
+        "心がドビュDビュすんるんじゃあ", "人生初ピンサロ行ってきました\n普通にイキました\nえぐい",
         "ライフライン ブスってTwitterで検索したらホライゾンがADHDでワットソンが自閉症なの初めて知ったわ\n\nAPEX始めたてライフライン勧められたから使ってたけど俺が雑魚なだけなのにこのブス弱いって言いまくってた\n\nまあライフラインは普通に良い奴だからなぁ",
         "ドルマリース、ルー", "まーたバズちゃったな😅\nユウカは可愛いからね🥰🥰🥰",
         "何気ライフラインが初の2000ハンマーなんだよな\nブスだからとかじゃなくて普通にキャラとして使いたくない\nジブ(ゲイ)ラハ(ノンバイナリー)ヴァルキリー(レズ)しか使わん",
@@ -82,9 +83,9 @@ RESPONSE_MAP = {
         "俺は自分の結果がすごくないって言ってしまうと\n本気でぶつかってトマト突破出来なかった人に対して失礼だと思うので\nだから俺は自分が成し遂げたことは凄いと胸を張りたいと思います\nだからルナやったやつらも狂喜乱舞して喜んでください おめでとうございます",
         "まともなやつは孤独になりやすい\nそれは何故か 信念があるからだと思う\nよく孤立するやつはそれはそいつが悪者だからじゃない 信念を持ち\n自分が自分を恥じないために独りになる",
         "くらふとん 俺にもいいねしてくれ", "あの日から俺のちんぽは宇宙を目指したんだ", "これが〝大人〟の顔だよココナちゃん",
-        "@ftgo225 は~^キチってんな~^\nまぁ腹の底が分からない人間って警戒されるからな 何考えてるかよりもこうやって形に残した方がいいんじゃね？
+        # 👇 【修正点２】最後の文字列に " (引用符) を追加しました
+        "@ftgo225 は~^キチってんな~^\nまぁ腹の底が分からない人間って警戒されるからな 何考えてるかよりもこうやって形に残した方がいいんじゃね？",
     ],
-    # 👇 【修正点１】複数のキーワードを () で囲んで1つのグループにしました
     ("あも", "熊ジェット", "垂狼", "Aモ", "アモ"): [
         "ろりおっぱいのみっぱい",
         "サークル通話楽しかったー\n自分はゆる〜い感じでやって行きたいから今後も今のサークルに居続けると思う😇\n順位も大事だと思うけど、交流とか一緒に何かを頑張ることを大事にしたい💪",
@@ -103,8 +104,6 @@ RESPONSE_MAP = {
         "新宿！\nたくさんの生徒さんががたんごとんとしてますので、お近くに立ち寄りの際はぜひー！\nhttps://pbs.twimg.com/media/GpCCpqBa0AAyQbX?format=jpg&name=large",
         "株式会社Yostarに入社しました\nhttps://note.com/kumajet/n/n763fa4043827",
         "株式会社Cygamesを退職しました\nhttps://note.com/kumajet/n/n32182c2f99fc","https://x.com/StellaSoraJP/status/1871843329295716846?t=rZSqMjNdN5LwYE1pMLkjlg&s=19",
-
-
     ],
 }
 
@@ -138,19 +137,15 @@ async def on_message(message):
     
     content = message.content.lower()
     
-    # 👇 【修正点２】複数のキーワードに対応できるようにループの処理を変更しました
     for keywords, response_list in RESPONSE_MAP.items():
         triggered = False
-        # キーがグループ（タプル）の場合
         if isinstance(keywords, tuple):
             if any(k.lower() in content for k in keywords):
                 triggered = True
-        # キーが単独の文字列の場合
         else:
             if keywords.lower() in content:
                 triggered = True
         
-        # もしキーワードが含まれていたら応答を送信して処理を終了
         if triggered:
             chosen_response = random.choice(response_list)
             if chosen_response:
@@ -169,11 +164,9 @@ async def chomasa_command(interaction: discord.Interaction):
 @tree.command(name="chara_data", description="SchaleDBから生徒の情報を検索します。")
 @discord.app_commands.describe(name="生徒の名前（一部でも可）")
 async def chara_data_command(interaction: discord.Interaction, name: str):
-    # APIの呼び出しには時間がかかる場合があるため、「考え中...」と表示させる
     await interaction.response.defer()
 
     try:
-        # 1. 生徒の名前で検索して、IDを取得する
         search_url = f"https://schaledb.com/api/v1/students/search?query={name}"
         search_response = requests.get(search_url)
 
@@ -186,10 +179,7 @@ async def chara_data_command(interaction: discord.Interaction, name: str):
             await interaction.followup.send(f"「{name}」という名前の生徒は見つかりませんでした。")
             return
 
-        # 検索結果の最初の一人のIDを取得
         student_id = search_data[0]['Id']
-
-        # 2. 取得したIDを使って、生徒の詳細データを取得する
         data_url = f"https://schaledb.com/api/v1/students/{student_id}"
         data_response = requests.get(data_url)
         
@@ -199,17 +189,14 @@ async def chara_data_command(interaction: discord.Interaction, name: str):
             
         student = data_response.json()
 
-        # 3. 取得したデータを使ってEmbed（埋め込み）を作成する
         embed = discord.Embed(
             title=f"{student['Name']} ({student['NameJp']})",
-            description=student['Profile'], # キャラの説明文
-            color=discord.Color.blue() # 埋め込みの左側の色
+            description=student['Profile'],
+            color=discord.Color.blue()
         )
         
-        # サムネイル画像（アイコン）を設定
         embed.set_thumbnail(url=f"https://schaledb.com/images/student/icon/{student['Id']}.webp")
         
-        # フィールドを追加
         embed.add_field(name="学校", value=student['School'], inline=True)
         embed.add_field(name="部活", value=student['Club'], inline=True)
         embed.add_field(name="学年", value=student['SchoolYear'], inline=True)
@@ -224,7 +211,6 @@ async def chara_data_command(interaction: discord.Interaction, name: str):
 
         embed.set_footer(text="Data from SchaleDB")
 
-        # 4. 作成したEmbedを送信する
         await interaction.followup.send(embed=embed)
 
     except requests.exceptions.RequestException as e:
@@ -232,7 +218,7 @@ async def chara_data_command(interaction: discord.Interaction, name: str):
         await interaction.followup.send("リクエスト中にネットワークエラーが発生しました。")
     except Exception as e:
         print(f"予期せぬエラー: {e}")
-        await interaction.followup.send("情報の取得中に不明なエラーが発生しました。")
+        await interaction.followup.send(f"情報の取得中に不明なエラーが発生しました: {e}")
 
 # BOTの実行
 try:
@@ -242,6 +228,3 @@ try:
     client.run(TOKEN)
 except KeyError:
     print("エラー: 環境変数 'DISCORD_BOT_TOKEN' が設定されていません。")
-
-
-
