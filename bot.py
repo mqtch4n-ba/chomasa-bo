@@ -4,6 +4,13 @@ import random
 from flask import Flask
 from threading import Thread
 import requests  # requests をインポートする
+import datetime
+
+# （...TARGET_CHANNEL_IDS の定義の下あたり...）
+
+# ★★★★★ ここに通知を送信したいチャンネルのIDを入力 ★★★★★
+# このIDのチャンネルに「起動完了」の通知が飛びます。
+NOTIFICATION_CHANNEL_ID = '1437221242355585074'  # 実際のチャンネルIDに置き換えてください
 
 # ----------------------------------------------------
 # Webサーバー機能 (Renderのスリープ防止用)
@@ -234,4 +241,5 @@ try:
     client.run(TOKEN)
 except KeyError:
     print("エラー: 環境変数 'DISCORD_BOT_TOKEN' が設定されていません。")
+
 
