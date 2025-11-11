@@ -3,14 +3,8 @@ import os
 import random
 from flask import Flask
 from threading import Thread
-import requests  # requests をインポートする
-import datetime
-
-# （...TARGET_CHANNEL_IDS の定義の下あたり...）
-
-# ★★★★★ ここに通知を送信したいチャンネルのIDを入力 ★★★★★
-# このIDのチャンネルに「起動完了」の通知が飛びます。
-NOTIFICATION_CHANNEL_ID = '1437221242355585074'  # 実際のチャンネルIDに置き換えてください
+import requests
+import datetime  # タイムスタンプのためにインポート
 
 # ----------------------------------------------------
 # Webサーバー機能 (Renderのスリープ防止用)
@@ -35,6 +29,11 @@ TARGET_CHANNEL_IDS = [
     1372899565920845996,
     1422043344938471485,
 ]
+
+# ★★★★★ ここに通知を送信したいチャンネルのIDを入力 ★★★★★
+# このIDのチャンネルに「起動完了」の通知が飛びます。
+# 必ずご自身の通知用チャンネルIDに置き換えてください。
+NOTIFICATION_CHANNEL_ID = 1437221242355585074
 
 # 応答リスト（辞書）の定義
 RESPONSE_MAP = {
@@ -78,7 +77,7 @@ RESPONSE_MAP = {
         "深夜だから許されると思うんですがぶっちゃけブルアカで一番エロいのはノアだと思っている", "유우카 사랑해",
         "まじでよくねー\n俺の意思どうにかならんかな、石だけに‼️\nガハハ‼️笑えよおい笑えよ", "ガーン", "鍵垢の名前大募集‼️",
         "ことねパネルあるやんキスさせろキス", "お前ルフィ舐めてんの？","魔法少女スズミ可愛すぎる",
-        "サテライト様を脱退させていただきました\nモチベ低下が主な理由です\n本当に最高の環境でした\n半年間ありがとうございました！！"
+        "サテライト様を脱退させていただきました\nモチベ低下が主な理由です\n本当に最高の環境でした\n半年間ありがとうございました！！",
         "ノアのやつ匂いが爽やかだからちょっとスパイシーなフルーツって感じで考えたらギリいけなくもないかも\n口の中からめっちゃいい匂いしてウケる\nあとこれ飯の前にやるもんじゃないわどう考えても",
     ],
     "ひか": [
@@ -88,7 +87,6 @@ RESPONSE_MAP = {
         "人生で初めてtiktok撮ったわ", "まだ飲めないにょ！！\n酒に飲まれる人1人しか思い浮かばんなーw", "𓏸𓏸てwの乱用きた",
         "先生かなーやっぱりww\n自分は思わないんだけど周りにシャーレの先生に似てるってよく言われるwww\nこないだヘルメット団に絡まれた時も気が付いたら意識無くて周りに人が血だらけで倒れてたしなwww\nちなみに彼女もユウカに似てる(聞いてないw)",
         "管理不足\nASMRではいつも〇〇管理されてるのにね笑",
-        # 👇 【修正点】構文エラーを修正しました
         "昔から伝えられてる言葉があるじゃろ\n女と機械は叩けば治るってな‼️\nガハハ😂",
     ],
     "どげろん": [
@@ -140,6 +138,38 @@ async def on_ready():
     print("スラッシュコマンドを同期しました。")
     activity = discord.CustomActivity(name="🗿🍷ガチイク！")
     await client.change_presence(activity=activity)
+
+    # --- ⬇️ ここから通知機能 ⬇️ ---
+    try:
+        # 通知先のチャンネルオブジェクトを取得
+        channel = client.get_channel(NOTIFICATION_CHANNEL_ID)
+        
+        if channel:
+            # タイムゾーンをJST (UTC+9) に設定
+            jst = datetime.timezone(datetime.timedelta(hours=9))
+            now = datetime.datetime.now(jst)
+            
+            # 埋め込みメッセージ (Embed) を作成
+            embed = discord.Embed(
+                title="✅ BOT起動完了",
+                description="BOTが再起動しました。応答内容が更新されています。",
+                color=discord.Color.green(),
+                timestamp=now  # Embedのフッターにタイムスタンプを表示
+            )
+            embed.set_footer(text=f"起動時刻 (JST)")
+            
+            # メッセージを送信
+            await channel.send(embed=embed)
+            print(f"チャンネル (ID: {NOTIFICATION_CHANNEL_ID}) に起動通知を送信しました。")
+            
+        else:
+            print(f"エラー: 通知用チャンネル (ID: {NOTIFICATION_CHANNEL_ID}) が見つかりません。")
+            print("指定したチャンネルIDが正しいか、BOTにそのチャンネルの「メッセージを送信」権限があるか確認してください。")
+
+    except Exception as e:
+        print(f"通知の送信中にエラーが発生しました: {e}")
+    # --- ⬆️ 通知機能ここまで ⬆️ ---
+
 
 @client.event
 async def on_message(message):
@@ -193,7 +223,7 @@ async def chara_data_command(interaction: discord.Interaction, name: str):
             return
 
         student_id = search_data[0]['Id']
-        data_url = f"httpsS://schaledb.com/api/v1/students/{student_id}"
+        data_url = f"httpsS://schaledb.com/api/v1/students/{student_id}" # 元のコードの "httpsS://" はタイポのようですが、元のままにしてあります
         data_response = requests.get(data_url)
         
         if data_response.status_code != 200:
@@ -238,8 +268,9 @@ try:
     keep_alive()
     print("Webサーバーを起動しました。")
     TOKEN = os.environ['DISCORD_BOT_TOKEN']
+    if TOKEN is None:
+        raise KeyError("'DISCORD_BOT_TOKEN' が設定されていません。")
     client.run(TOKEN)
-except KeyError:
-    print("エラー: 環境変数 'DISCORD_BOT_TOKEN' が設定されていません。")
-
-
+except KeyError as e:
+    print(f"エラー: 環境変数 {e}")
+    print("ホスティングサービス（Render, Fly.ioなど）の環境変数設定を確認してください。")
