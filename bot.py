@@ -263,6 +263,68 @@ async def chara_data_command(interaction: discord.Interaction, name: str):
         print(f"予期せぬエラー: {e}")
         await interaction.followup.send(f"情報の取得中に不明なエラーが発生しました: {e}")
 
+# （import os は既にあるのでOK）
+
+@client.event
+async def on_ready():
+    print(f'Logged in as {client.user}')
+    await tree.sync()
+    print("スラッシュコマンドを同期しました。")
+    activity = discord.CustomActivity(name="🗿🍷ガチイク！")
+    await client.change_presence(activity=activity)
+
+    # --- ⬇️ ここから通知機能 (修正版) ⬇️ ---
+    try:
+        # 通知先のチャンネルオブジェクトを取得
+        channel = client.get_channel(NOTIFICATION_CHANNEL_ID)
+        
+        if channel:
+            # タイムゾーンをJST (UTC+9) に設定
+            jst = datetime.timezone(datetime.timedelta(hours=9))
+            now = datetime.datetime.now(jst)
+            
+            # --- ⬇️ Renderの環境変数を読み込む ⬇️ ---
+            # Renderが自動で設定する環境変数を取得
+            # RENDER_GIT_COMMIT => コミットハッシュ（例: f7a6c3f）
+            # RENDER_GIT_BRANCH => ブランチ名（例: main）
+            # .get() の第2引数は、環境変数が見つからなかった場合のデフォルト値
+            
+            commit_hash = os.environ.get("RENDER_GIT_COMMIT")
+            branch_name = os.environ.get("RENDER_GIT_BRANCH")
+
+            # --- ⬆️ 環境変数の読み込みここまで ⬆️ ---
+
+            # 埋め込みメッセージ (Embed) を作成
+            embed = discord.Embed(
+                title="✅ BOT起動完了",
+                description="BOTが再起動しました。応答内容が更新されています。",
+                color=discord.Color.green(),
+                timestamp=now  # Embedのフッターにタイムスタンプを表示
+            )
+            
+            # --- ⬇️ 取得した情報をEmbedに追加 ⬇️ ---
+            if branch_name:
+                embed.add_field(name="ブランチ", value=branch_name, inline=True)
+                
+            if commit_hash:
+                # コミットハッシュが長い場合は、先頭7文字だけ表示する
+                short_hash = commit_hash[:7]
+                embed.add_field(name="コミット", value=f"`{short_hash}`", inline=True)
+            # --- ⬆️ Embedへの追加ここまで ⬆️ ---
+                
+            embed.set_footer(text=f"起動時刻 (JST)")
+            
+            # メッセージを送信
+            await channel.send(embed=embed)
+            print(f"チャンネル (ID: {NOTIFICATION_CHANNEL_ID}) に起動通知を送信しました。")
+            
+        else:
+            print(f"エラー: 通知用チャンネル (ID: {NOTIFICATION_CHANNEL_ID}) が見つかりません。")
+
+    except Exception as e:
+        print(f"通知の送信中にエラーが発生しました: {e}")
+    # --- ⬆️ 通知機能ここまで ⬆️ ---
+
 # BOTの実行
 try:
     keep_alive()
@@ -274,4 +336,5 @@ try:
 except KeyError as e:
     print(f"エラー: 環境変数 {e}")
     print("ホスティングサービス（Render, Fly.ioなど）の環境変数設定を確認してください。")
+
 
