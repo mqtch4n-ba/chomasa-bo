@@ -111,6 +111,7 @@ RESPONSE_MAP = {
         "あまねくラウンジの雰囲気楽しかったな\n時間あればROM専じゃなくて参加したかった😭",
         "@Rateart1227\nおつありです!!\nまっちゃんさんもお疲れ様〜(*´˘`*)",
         "@chomasa0110\nフレさんが替えくれたから何とかなりそう！\nただゴズ爆発TAは擁護しようもなくゴミや…",
+        "テスト",
         "全56しゅるい、好きな並びでつなげて飾ったり遊んだりしてみてください！",
         "新宿！\nたくさんの生徒さんががたんごとんとしてますので、お近くに立ち寄りの際はぜひー！\nhttps://pbs.twimg.com/media/GpCCpqBa0AAyQbX?format=jpg&name=large",
         "株式会社Yostarに入社しました\nhttps://note.com/kumajet/n/n763fa4043827",
@@ -336,5 +337,6 @@ try:
 except KeyError as e:
     print(f"エラー: 環境変数 {e}")
     print("ホスティングサービス（Render, Fly.ioなど）の環境変数設定を確認してください。")
+
 
 
