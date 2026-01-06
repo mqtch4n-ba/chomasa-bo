@@ -118,6 +118,14 @@ RESPONSE_MAP = {
         "株式会社Yostarに入社しました\nhttps://note.com/kumajet/n/n763fa4043827",
         "株式会社Cygamesを退職しました\nhttps://note.com/kumajet/n/n32182c2f99fc","https://x.com/StellaSoraJP/status/1871843329295716846?t=rZSqMjNdN5LwYE1pMLkjlg&s=19",
     ],
+        "ゆばも": [
+        "https://pbs.twimg.com/media/G9ukWP8acAAnYoo?format=jpg&name=large",
+        "俺と会った印象「女殴ってそう」って言われるんすけど殴ってそうですか！？！",
+        "この世の中、喋ること=話すだと思ってる人多すぎる\n\n喋る:聞くの割合が5:5になって初めてみ 「話す」だよ", "サークルスペースの前で30分何も買わずマシンガントークされたよ",
+        "https://pbs.twimg.com/media/G9jODtjaMAQodHR?format=jpg&name=small",
+        "明けましておめでとうございます。\n皆さん今年もよろしくお願いしますブルーアーカイブ",
+        "ちょまさ会いたい、寂しいよ"
+    ],
 }
 
 # chomasaコマンドで紹介するポストのURLリスト
@@ -338,6 +346,7 @@ try:
 except KeyError as e:
     print(f"エラー: 環境変数 {e}")
     print("ホスティングサービス（Render, Fly.ioなど）の環境変数設定を確認してください。")
+
 
 
 
