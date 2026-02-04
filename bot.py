@@ -127,7 +127,6 @@ RESPONSE_MAP = {
         "ちょまさ会いたい、寂しいよ","冬コミに参加した三善タカネ\nhttps://pbs.twimg.com/media/G9gS2TdagAEaEvT?format=jpg&name=4096x4096",
         "タカネ「私をこんな目に合わせるなんて屈辱ですわ」\n関西弁のおっさん「私をこんな目に合わせるなんて屈辱ですわ」",
         "金が足りません。金を買いますか\n#ブルアカ #アロナ\nhttps://pbs.twimg.com/media/Gy3TlJzacAAg9hj?format=jpg&name=large"
-        "
     ],
 }
 
@@ -349,6 +348,7 @@ try:
 except KeyError as e:
     print(f"エラー: 環境変数 {e}")
     print("ホスティングサービス（Render, Fly.ioなど）の環境変数設定を確認してください。")
+
 
 
 
