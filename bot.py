@@ -279,6 +279,20 @@ async def chara_data_command(interaction: discord.Interaction, name: str):
 
 # （import os は既にあるのでOK）
 
+# アナグラム生成（シャッフル）機能
+@tree.command(name="シャッフル", description="入力した文字をバラバラに並べ替えます。")
+@discord.app_commands.describe(text="シャッフルしたい文字列")
+async def shuffle_command(interaction: discord.Interaction, text: str):
+    # 文字列をリストに変換してシャッフル
+    char_list = list(text)
+    random.shuffle(char_list)
+    
+    # リストを文字列に戻す
+    shuffled_text = "".join(char_list)
+    
+    # 結果を送信
+    await interaction.response.send_message(f"🎲 **シャッフル結果:**\n{shuffled_text}")
+
 @client.event
 async def on_ready():
     print(f'Logged in as {client.user}')
@@ -350,6 +364,7 @@ try:
 except KeyError as e:
     print(f"エラー: 環境変数 {e}")
     print("ホスティングサービス（Render, Fly.ioなど）の環境変数設定を確認してください。")
+
 
 
 
