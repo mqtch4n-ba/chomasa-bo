@@ -217,67 +217,24 @@ async def chomasa_command(interaction: discord.Interaction):
     random_post_link = random.choice(CHOMASA_POST_LINKS)
     await interaction.response.send_message(random_post_link)
 
-# ブルアカデータ取得機能
-@tree.command(name="chara_data", description="SchaleDBから生徒の情報を検索します。")
-@discord.app_commands.describe(name="生徒の名前（一部でも可）")
-async def chara_data_command(interaction: discord.Interaction, name: str):
-    await interaction.response.defer()
+# メッセージを右クリック > アプリ > 文字をシャッフル から実行
+@tree.context_menu(name="文字をシャッフル")
+async def shuffle_message(interaction: discord.Interaction, message: discord.Message):
+    # 対象のメッセージ内容を取得
+    text = message.content
+    
+    if not text:
+        await interaction.response.send_message("シャッフルできる文字が見つかりませんでした。", ephemeral=True)
+        return
 
-    try:
-        search_url = f"https://schaledb.com/api/v1/students/search?query={name}"
-        search_response = requests.get(search_url)
+    # シャッフル処理
+    char_list = list(text)
+    random.shuffle(char_list)
+    shuffled_text = "".join(char_list)
+    
+    # シャッフルされた文字のみを出力
+    await interaction.response.send_message(shuffled_text)
 
-        if search_response.status_code != 200:
-            await interaction.followup.send("APIエラーが発生しました。SchaleDBがダウンしているかもしれません。")
-            return
-
-        search_data = search_response.json()
-        if not search_data:
-            await interaction.followup.send(f"「{name}」という名前の生徒は見つかりませんでした。")
-            return
-
-        student_id = search_data[0]['Id']
-        data_url = f"httpsS://schaledb.com/api/v1/students/{student_id}" # 元のコードの "httpsS://" はタイポのようですが、元のままにしてあります
-        data_response = requests.get(data_url)
-        
-        if data_response.status_code != 200:
-            await interaction.followup.send("生徒の詳細データの取得に失敗しました。")
-            return
-            
-        student = data_response.json()
-
-        embed = discord.Embed(
-            title=f"{student['Name']} ({student['NameJp']})",
-            description=student['Profile'],
-            color=discord.Color.blue()
-        )
-        
-        embed.set_thumbnail(url=f"https://schaledb.com/images/student/icon/{student['Id']}.webp")
-        
-        embed.add_field(name="学校", value=student['School'], inline=True)
-        embed.add_field(name="部活", value=student['Club'], inline=True)
-        embed.add_field(name="学年", value=student['SchoolYear'], inline=True)
-        
-        embed.add_field(name="役割 (Role)", value=student['Role'], inline=True)
-        embed.add_field(name="武器", value=student['WeaponType'], inline=True)
-        embed.add_field(name="誕生日", value=student['Birthday'], inline=True)
-        
-        embed.add_field(name="攻撃タイプ", value=student['AttackType'], inline=True)
-        embed.add_field(name="防御タイプ", value=student['DefenseType'], inline=True)
-        embed.add_field(name="遮蔽", value="使う" if student['Cover'] else "使わない", inline=True)
-
-        embed.set_footer(text="Data from SchaleDB")
-
-        await interaction.followup.send(embed=embed)
-
-    except requests.exceptions.RequestException as e:
-        print(f"APIリクエストエラー: {e}")
-        await interaction.followup.send("リクエスト中にネットワークエラーが発生しました。")
-    except Exception as e:
-        print(f"予期せぬエラー: {e}")
-        await interaction.followup.send(f"情報の取得中に不明なエラーが発生しました: {e}")
-
-# （import os は既にあるのでOK）
 
 # アナグラム生成（シャッフル）機能
 @tree.command(name="シャッフル", description="入力した文字をバラバラに並べ替えます。")
@@ -364,6 +321,7 @@ try:
 except KeyError as e:
     print(f"エラー: 環境変数 {e}")
     print("ホスティングサービス（Render, Fly.ioなど）の環境変数設定を確認してください。")
+
 
 
 
