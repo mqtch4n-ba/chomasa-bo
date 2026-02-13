@@ -291,7 +291,7 @@ async def shuffle_command(interaction: discord.Interaction, text: str):
     shuffled_text = "".join(char_list)
     
     # 結果を送信
-    await interaction.response.send_message(f"🎲 **シャッフル結果:**\n{shuffled_text}")
+    await interaction.response.send_message(shuffled_text)
 
 @client.event
 async def on_ready():
@@ -364,6 +364,7 @@ try:
 except KeyError as e:
     print(f"エラー: 環境変数 {e}")
     print("ホスティングサービス（Render, Fly.ioなど）の環境変数設定を確認してください。")
+
 
 
 
