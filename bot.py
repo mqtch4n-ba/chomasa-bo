@@ -30,9 +30,6 @@ TARGET_CHANNEL_IDS = [
     1422043344938471485,
 ]
 
-# ★★★★★ ここに通知を送信したいチャンネルのIDを入力 ★★★★★
-# このIDのチャンネルに「起動完了」の通知が飛びます。
-# 必ずご自身の通知用チャンネルIDに置き換えてください。
 NOTIFICATION_CHANNEL_ID = 1437221242355585074
 
 # 応答リスト（辞書）の定義
@@ -192,15 +189,21 @@ async def on_message(message):
     if message.channel.id not in TARGET_CHANNEL_IDS:
         return
     
-    content = message.content.lower()
+    # 前後の空白を削除して小文字化（「 ちょまさ 」などのスペース対策）
+    content = message.content.strip().lower()
     
     for keywords, response_list in RESPONSE_MAP.items():
         triggered = False
+        
+        # キーワードがタプルの場合（あも、熊ジェットなど）
         if isinstance(keywords, tuple):
-            if any(k.lower() in content for k in keywords):
+            # いずれかのキーワードと「完全に一致」するかチェック
+            if any(content == k.lower() for k in keywords):
                 triggered = True
+        # キーワードが単一の文字列の場合（ちょまさ、ゆずみつなど）
         else:
-            if keywords.lower() in content:
+            # キーワードと「完全に一致」するかチェック
+            if content == keywords.lower():
                 triggered = True
         
         if triggered:
@@ -321,6 +324,7 @@ try:
 except KeyError as e:
     print(f"エラー: 環境変数 {e}")
     print("ホスティングサービス（Render, Fly.ioなど）の環境変数設定を確認してください。")
+
 
 
 
