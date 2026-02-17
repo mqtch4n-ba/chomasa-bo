@@ -4,11 +4,8 @@ import random
 from flask import Flask
 from threading import Thread
 import requests
-import datetime  # タイムスタンプのためにインポート
+import datetime 
 
-# ----------------------------------------------------
-# Webサーバー機能 (Renderのスリープ防止用)
-# ----------------------------------------------------
 app = Flask('')
 
 @app.route('/')
@@ -16,7 +13,6 @@ def home():
     return "Bot is alive."
 
 def run():
-    # Fly.io が指定するポート番号を取得。なければ8080を使う
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
 
@@ -66,7 +62,7 @@ RESPONSE_MAP = {
         "よわよわゆずみつ先生甘々マゾマゾえっちすぎるカフェタッチすごいたのしいブルアカ愛イチャラブーカリカリほむほむASMR",
         "チョコミント美味しいですよね？", "関係は無いんですけど、卵って美味しいですよね🥚", "エロいとえっちは別だと思ってて、えっち派閥に属してます",
     ],
-    ":sa:": [
+    "さ": [
         "本日", "あーおけ笑", "やめてね", "ユウカあるある 可愛い", "NTRって何⁉️クソすぎ⁉️🤩", "一捨九入ぐらいしてるだろこれ",
         "メカニックキンタマおもろい\nキンタマパカパカでワロタ~W", "コユキかわいい", "ウミカかわいい、ウミカわいい",
         "ちょうど死にたかったので助かります！w",
@@ -79,6 +75,7 @@ RESPONSE_MAP = {
         "ことねパネルあるやんキスさせろキス", "お前ルフィ舐めてんの？","魔法少女スズミ可愛すぎる",
         "サテライト様を脱退させていただきました\nモチベ低下が主な理由です\n本当に最高の環境でした\n半年間ありがとうございました！！",
         "ノアのやつ匂いが爽やかだからちょっとスパイシーなフルーツって感じで考えたらギリいけなくもないかも\n口の中からめっちゃいい匂いしてウケる\nあとこれ飯の前にやるもんじゃないわどう考えても",
+        "失礼しました、萌えアニメが出てしまいました",
     ],
     "ひか": [
         "彼女とカラケ彼女抜き", "俺も股間に種子貯蔵庫あるよ！！", "仮装舞踏会にコユハラ冷笑してるヤツいたから引っこ抜け",
@@ -129,14 +126,12 @@ RESPONSE_MAP = {
     ],
 }
 
-# chomasaコマンドで紹介するポストのURLリスト
 CHOMASA_POST_LINKS = [
     "https://x.com/chomasa0110/status/1851157072349708583", "https://x.com/chomasa0110/status/1870836874354532648",
     "https://x.com/chomasa0110/status/1851153967247667363",
     "https://x.com/chomasa0110/status/1955618377944514874?s=46&t=YRNFhWuUfWmcyhVVy1uCRQ",
 ]
 
-# Discordボットの準備
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
@@ -150,17 +145,13 @@ async def on_ready():
     activity = discord.CustomActivity(name="🗿🍷ガチイク！")
     await client.change_presence(activity=activity)
 
-    # --- ⬇️ ここから通知機能 ⬇️ ---
     try:
-        # 通知先のチャンネルオブジェクトを取得
         channel = client.get_channel(NOTIFICATION_CHANNEL_ID)
         
         if channel:
-            # タイムゾーンをJST (UTC+9) に設定
             jst = datetime.timezone(datetime.timedelta(hours=9))
             now = datetime.datetime.now(jst)
             
-            # 埋め込みメッセージ (Embed) を作成
             embed = discord.Embed(
                 title="✅ BOT起動完了",
                 description="BOTが再起動しました。応答内容が更新されています。",
@@ -179,7 +170,6 @@ async def on_ready():
 
     except Exception as e:
         print(f"通知の送信中にエラーが発生しました: {e}")
-    # --- ⬆️ 通知機能ここまで ⬆️ ---
 
 
 @client.event
@@ -189,20 +179,15 @@ async def on_message(message):
     if message.channel.id not in TARGET_CHANNEL_IDS:
         return
     
-    # 前後の空白を削除して小文字化（「 ちょまさ 」などのスペース対策）
     content = message.content.strip().lower()
     
     for keywords, response_list in RESPONSE_MAP.items():
         triggered = False
         
-        # キーワードがタプルの場合（あも、熊ジェットなど）
         if isinstance(keywords, tuple):
-            # いずれかのキーワードと「完全に一致」するかチェック
             if any(content == k.lower() for k in keywords):
                 triggered = True
-        # キーワードが単一の文字列の場合（ちょまさ、ゆずみつなど）
         else:
-            # キーワードと「完全に一致」するかチェック
             if content == keywords.lower():
                 triggered = True
         
@@ -220,37 +205,32 @@ async def chomasa_command(interaction: discord.Interaction):
     random_post_link = random.choice(CHOMASA_POST_LINKS)
     await interaction.response.send_message(random_post_link)
 
-# メッセージを右クリック > アプリ > 文字をシャッフル から実行
 @tree.context_menu(name="文字をシャッフル")
 async def shuffle_message(interaction: discord.Interaction, message: discord.Message):
-    # 対象のメッセージ内容を取得
+
     text = message.content
     
     if not text:
         await interaction.response.send_message("シャッフルできる文字が見つかりませんでした。", ephemeral=True)
         return
 
-    # シャッフル処理
     char_list = list(text)
     random.shuffle(char_list)
     shuffled_text = "".join(char_list)
     
-    # シャッフルされた文字のみを出力
     await interaction.response.send_message(shuffled_text)
 
 
-# アナグラム生成（シャッフル）機能
+
 @tree.command(name="シャッフル", description="入力した文字をバラバラに並べ替えます。")
 @discord.app_commands.describe(text="シャッフルしたい文字列")
 async def shuffle_command(interaction: discord.Interaction, text: str):
-    # 文字列をリストに変換してシャッフル
+
     char_list = list(text)
     random.shuffle(char_list)
     
-    # リストを文字列に戻す
     shuffled_text = "".join(char_list)
     
-    # 結果を送信
     await interaction.response.send_message(shuffled_text)
 
 @client.event
@@ -261,7 +241,6 @@ async def on_ready():
     activity = discord.CustomActivity(name="🗿🍷ガチイク！")
     await client.change_presence(activity=activity)
 
-    # --- ⬇️ ここから通知機能 (修正版) ⬇️ ---
     try:
         # 通知先のチャンネルオブジェクトを取得
         channel = client.get_channel(NOTIFICATION_CHANNEL_ID)
@@ -270,19 +249,11 @@ async def on_ready():
             # タイムゾーンをJST (UTC+9) に設定
             jst = datetime.timezone(datetime.timedelta(hours=9))
             now = datetime.datetime.now(jst)
-            
-            # --- ⬇️ Renderの環境変数を読み込む ⬇️ ---
-            # Renderが自動で設定する環境変数を取得
-            # RENDER_GIT_COMMIT => コミットハッシュ（例: f7a6c3f）
-            # RENDER_GIT_BRANCH => ブランチ名（例: main）
-            # .get() の第2引数は、環境変数が見つからなかった場合のデフォルト値
-            
+
             commit_hash = os.environ.get("RENDER_GIT_COMMIT")
             branch_name = os.environ.get("RENDER_GIT_BRANCH")
 
-            # --- ⬆️ 環境変数の読み込みここまで ⬆️ ---
 
-            # 埋め込みメッセージ (Embed) を作成
             embed = discord.Embed(
                 title="✅ BOT起動完了",
                 description="BOTが再起動しました。応答内容が更新されています。",
@@ -290,7 +261,7 @@ async def on_ready():
                 timestamp=now  # Embedのフッターにタイムスタンプを表示
             )
             
-            # --- ⬇️ 取得した情報をEmbedに追加 ⬇️ ---
+
             if branch_name:
                 embed.add_field(name="ブランチ", value=branch_name, inline=True)
                 
@@ -298,11 +269,10 @@ async def on_ready():
                 # コミットハッシュが長い場合は、先頭7文字だけ表示する
                 short_hash = commit_hash[:7]
                 embed.add_field(name="コミット", value=f"`{short_hash}`", inline=True)
-            # --- ⬆️ Embedへの追加ここまで ⬆️ ---
+
                 
             embed.set_footer(text=f"起動時刻 (JST)")
-            
-            # メッセージを送信
+
             await channel.send(embed=embed)
             print(f"チャンネル (ID: {NOTIFICATION_CHANNEL_ID}) に起動通知を送信しました。")
             
@@ -311,9 +281,6 @@ async def on_ready():
 
     except Exception as e:
         print(f"通知の送信中にエラーが発生しました: {e}")
-    # --- ⬆️ 通知機能ここまで ⬆️ ---
-
-# BOTの実行
 try:
     keep_alive()
     print("Webサーバーを起動しました。")
@@ -324,6 +291,7 @@ try:
 except KeyError as e:
     print(f"エラー: 環境変数 {e}")
     print("ホスティングサービス（Render, Fly.ioなど）の環境変数設定を確認してください。")
+
 
 
 
