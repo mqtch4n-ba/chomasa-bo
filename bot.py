@@ -179,24 +179,19 @@ async def on_message(message):
     if message.channel.id not in TARGET_CHANNEL_IDS:
         return
     
+    # メッセージを小文字にして判定（半角スペースなども除去）
     content = message.content.strip().lower()
     
     for keywords, response_list in RESPONSE_MAP.items():
-        triggered = False
+        # キーワードがタプル（複数）か単体か判定してチェック
+        keys = keywords if isinstance(keywords, tuple) else (keywords,)
         
-        if isinstance(keywords, tuple):
-            if any(content == k.lower() for k in keywords):
-                triggered = True
-        else:
-            if content == keywords.lower():
-                triggered = True
-        
-        if triggered:
+        # 「キーワードがメッセージに含まれているか」で判定
+        if any(k.lower() in content for k in keys):
             chosen_response = random.choice(response_list)
-            if chosen_response:
-                await message.channel.send(chosen_response)
-            return
-
+            await message.channel.send(chosen_response)
+            return # 1つのメッセージに1回だけ反応
+            
 @tree.command(name="chomasa", description="ちょまささんのバズを1つ紹介します。")
 async def chomasa_command(interaction: discord.Interaction):
     if not CHOMASA_POST_LINKS:
