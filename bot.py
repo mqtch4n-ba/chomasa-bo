@@ -3,7 +3,6 @@ import os
 import random
 from flask import Flask
 from threading import Thread
-import requests
 import datetime
 
 app = Flask('')
@@ -48,7 +47,6 @@ RESPONSE_MAP = {
         "確かにホドってインベイドピラーとかいう棒状のブツで侵食してきたり、\n触手あったりでエロいよな\nタコはエロいってヒナも言ってたしな",
         "ちな俺のサキこれ\n抜く以外では一切触れないようにしたい",
         "サテライトの「さ」さんとぽっちパイのhikaと飯！！\n#サテライト甘党部\n#めしてろぽっちパイ\nhttps://pbs.twimg.com/media/GyY1wrRaQAEUmmi?format=jpg&name=large\nhttps://pbs.twimg.com/media/GyY1wrUagAAL28S?format=jpg&name=large",
-#飯仙陣
     ],
     "ゆずみつ": [
         "いいぞ\n羽持ってる子が卵産む概念もっと流行れ\n先生に食べてもらってゾクゾクしてると尚良い",
@@ -114,7 +112,7 @@ RESPONSE_MAP = {
         "株式会社Yostarに入社しました\nhttps://note.com/kumajet/n/n763fa4043827",
         "株式会社Cygamesを退職しました\nhttps://note.com/kumajet/n/n32182c2f99fc","https://x.com/StellaSoraJP/status/1871843329295716846?t=rZSqMjNdN5LwYE1pMLkjlg&s=19",
     ],
-        "ゆばも": [
+    "ゆばも": [
         "https://pbs.twimg.com/media/G9ukWP8acAAnYoo?format=jpg&name=large",
         "俺と会った印象「女殴ってそう」って言われるんすけど殴ってそうですか！？！",
         "この世の中、喋ること=話すだと思ってる人多すぎる\n\n喋る:聞くの割合が5:5になって初めてみ 「話す」だよ", "サークルスペースの前で30分何も買わずマシンガントークされたよ",
@@ -138,41 +136,6 @@ client = discord.Client(intents=intents)
 tree = discord.app_commands.CommandTree(client)
 
 @client.event
-async def on_ready():
-    print(f'Logged in as {client.user}')
-    await tree.sync()
-    print("スラッシュコマンドを同期しました。")
-    activity = discord.CustomActivity(name="🗿🍷ガチイク！")
-    await client.change_presence(activity=activity)
-
-    try:
-        channel = client.get_channel(NOTIFICATION_CHANNEL_ID)
-        
-        if channel:
-            jst = datetime.timezone(datetime.timedelta(hours=9))
-            now = datetime.datetime.now(jst)
-            
-            embed = discord.Embed(
-                title="✅ BOT起動完了",
-                description="BOTが再起動しました。応答内容が更新されています。",
-                color=discord.Color.green(),
-                timestamp=now  # Embedのフッターにタイムスタンプを表示
-            )
-            embed.set_footer(text=f"起動時刻 (JST)")
-            
-            # メッセージを送信
-            await channel.send(embed=embed)
-            print(f"チャンネル (ID: {NOTIFICATION_CHANNEL_ID}) に起動通知を送信しました。")
-            
-        else:
-            print(f"エラー: 通知用チャンネル (ID: {NOTIFICATION_CHANNEL_ID}) が見つかりません。")
-            print("指定したチャンネルIDが正しいか、BOTにそのチャンネルの「メッセージを送信」権限があるか確認してください。")
-
-    except Exception as e:
-        print(f"通知の送信中にエラーが発生しました: {e}")
-
-
-@client.event
 async def on_message(message):
     if message.author == client.user:
         return
@@ -186,8 +149,8 @@ async def on_message(message):
         # キーワードがタプル（複数）か単体か判定してチェック
         keys = keywords if isinstance(keywords, tuple) else (keywords,)
         
-        # 「キーワードがメッセージに含まれているか」で判定
-        if any(k.lower() in content for k in keys):
+        # 【変更点】 キーワードとメッセージが「完全一致」しているか判定
+        if any(k.lower() == content for k in keys):
             chosen_response = random.choice(response_list)
             await message.channel.send(chosen_response)
             return # 1つのメッセージに1回だけ反応
@@ -202,7 +165,6 @@ async def chomasa_command(interaction: discord.Interaction):
 
 @tree.context_menu(name="文字をシャッフル")
 async def shuffle_message(interaction: discord.Interaction, message: discord.Message):
-
     text = message.content
     
     if not text:
@@ -215,12 +177,9 @@ async def shuffle_message(interaction: discord.Interaction, message: discord.Mes
     
     await interaction.response.send_message(shuffled_text)
 
-
-
 @tree.command(name="シャッフル", description="入力した文字をバラバラに並べ替えます。")
 @discord.app_commands.describe(text="シャッフルしたい文字列")
 async def shuffle_command(interaction: discord.Interaction, text: str):
-
     char_list = list(text)
     random.shuffle(char_list)
     
@@ -264,7 +223,6 @@ async def on_ready():
             commit_hash = os.environ.get("RENDER_GIT_COMMIT")
             branch_name = os.environ.get("RENDER_GIT_BRANCH")
 
-
             embed = discord.Embed(
                 title="✅ BOT起動完了",
                 description="BOTが再起動しました。応答内容が更新されています。",
@@ -272,7 +230,6 @@ async def on_ready():
                 timestamp=now  # Embedのフッターにタイムスタンプを表示
             )
             
-
             if branch_name:
                 embed.add_field(name="ブランチ", value=branch_name, inline=True)
                 
@@ -281,7 +238,6 @@ async def on_ready():
                 short_hash = commit_hash[:7]
                 embed.add_field(name="コミット", value=f"`{short_hash}`", inline=True)
 
-                
             embed.set_footer(text=f"起動時刻 (JST)")
 
             await channel.send(embed=embed)
@@ -292,6 +248,7 @@ async def on_ready():
 
     except Exception as e:
         print(f"通知の送信中にエラーが発生しました: {e}")
+
 try:
     keep_alive()
     print("Webサーバーを起動しました。")
@@ -302,17 +259,3 @@ try:
 except KeyError as e:
     print(f"エラー: 環境変数 {e}")
     print("ホスティングサービス（Render, Fly.ioなど）の環境変数設定を確認してください。")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
