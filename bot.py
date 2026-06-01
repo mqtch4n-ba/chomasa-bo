@@ -129,6 +129,10 @@ RESPONSE_MAP = {
         "タカネ「私をこんな目に合わせるなんて屈辱ですわ」\n関西弁のおっさん「私をこんな目に合わせるなんて屈辱ですわ」",
         "金が足りません。金を買いますか\n#ブルアカ #アロナ\nhttps://pbs.twimg.com/media/Gy3TlJzacAAg9hj?format=jpg&name=large"
     ],
+    "クローバー": [
+        "これはちょまさがケツイキするまでの物語だ",
+    ],
+
 }
 
 CHOMASA_POST_LINKS = [
