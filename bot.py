@@ -202,21 +202,6 @@ async def shuffle_command(interaction: discord.Interaction, text: str):
     
     await interaction.response.send_message(shuffled_text)
 
-# メッセージを右クリック > アプリ > X動画を埋め込み表示 から実行
-@tree.context_menu(name="X動画を埋め込み表示")
-async def fix_x_video(interaction: discord.Interaction, message: discord.Message):
-    content = message.content
-    
-    # リンクが含まれているか確認
-    if "x.com" in content or "twitter.com" in content:
-        # ドメインを vxtwitter.com に置換
-        # これにより、Discord上でMP4として再生・保存可能なプレイヤーが表示されます
-        fixed_url = content.replace("x.com", "vxtwitter.com").replace("twitter.com", "vxtwitter.com")
-        
-        await interaction.response.send_message(f"動画を見やすくしたよ！\n{fixed_url}")
-    else:
-        await interaction.response.send_message("メッセージの中にX（Twitter）のリンクが見つかりませんでした。", ephemeral=True)
-
 
 @client.event
 async def on_ready():
